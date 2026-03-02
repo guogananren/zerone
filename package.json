@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:server": "node server/index.js",
+    "dev:all": "run-p dev dev:server",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
@@ -14,7 +16,11 @@
     "lint:eslint": "eslint . --fix --cache"
   },
   "dependencies": {
+    "dotenv": "^16.4.5",
+    "openai": "^4.73.0",
     "axios": "^1.13.6",
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
     "element-plus": "^2.13.2",
     "pinia": "^3.0.4",
     "vue": "^3.5.29",
