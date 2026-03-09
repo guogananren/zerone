@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import Icon from '@@/components/Icon/index.vue'
+import { userInfoStore } from '@/stores/user'
 
+const userInfo = userInfoStore()
 const router = useRouter()
 
 function goToChat() {
   router.push('/chat')
+}
+function logout() {
+  userInfo.clearUserInfo()
+  router.push('/login')
 }
 </script>
 
@@ -14,8 +20,8 @@ function goToChat() {
     <nav class="nav">
       <div class="nav-inner">
         <div class="logo">ZERONE</div>
-        <div class="nav-links">
-          <router-link to="/chat" class="nav-link">对话</router-link>
+        <div class="nav-links" @click="logout">
+          登出
         </div>
       </div>
     </nav>
@@ -124,6 +130,7 @@ function goToChat() {
 .nav-links {
   display: flex;
   gap: 32px;
+  cursor: pointer;
 }
 
 .nav-link {

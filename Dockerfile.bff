@@ -1,0 +1,26 @@
+# 阶段 1：安装依赖
+FROM node:20-alpine AS deps
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+WORKDIR /app
+
+COPY package.json ./
+RUN pnpm install && pnpm prune --prod
+
+# 阶段 2：运行 BFF
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY package.json ./
+COPY server ./server
+
+ENV NODE_ENV=production
+EXPOSE 3001
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget -q -O- http://localhost:3001/api/health || exit 1
+
+CMD ["node", "server/index.js"]

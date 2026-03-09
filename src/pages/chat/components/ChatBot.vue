@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick, watch } from 'vue'
-import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import Icon from '@@/components/Icon/index.vue'
 import { useChatStore } from '@/stores/chat'
 import { fetchChatStream } from '@@/apis/chat'
+import { renderMarkdown } from '@@/utils/markdown'
 import type { Message } from '@/stores/chat'
-
-const router = useRouter()
 const chatStore = useChatStore()
 const { currentMessages, currentSessionId, sessions } = storeToRefs(chatStore)
 
@@ -152,10 +150,20 @@ function handleRetry() {
             :class="{ 'message-user': msg.sender === 'user' }"
           >
             <div class="message-bubble" :class="{ 'bubble-user': msg.sender === 'user' }">
-              <p class="message-text">
-                {{ msg.text }}
-                <span v-if="msg.sender === 'bot' && isLoading && msg.id === currentMessages[currentMessages.length - 1]?.id" class="cursor">|</span>
-              </p>
+              <div class="message-text">
+                <template v-if="msg.sender === 'user'">
+                  {{ msg.text }}
+                </template>
+                <div
+                  v-else
+                  class="markdown-body"
+                  v-html="renderMarkdown(msg.text)"
+                />
+                <span
+                  v-if="msg.sender === 'bot' && isLoading && msg.id === currentMessages[currentMessages.length - 1]?.id"
+                  class="cursor"
+                >|</span>
+              </div>
             </div>
           </div>
           <div ref="messagesEndRef" />
@@ -352,6 +360,87 @@ function handleRetry() {
   font-weight: 300;
   color: $zerone-text-primary;
   margin: 0;
+}
+
+.markdown-body {
+  :deep(p) {
+    margin: 0 0 8px;
+  }
+
+  :deep(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  :deep(ul),
+  :deep(ol) {
+    padding-left: 20px;
+    margin: 0 0 8px;
+  }
+
+  :deep(li) {
+    margin: 2px 0;
+  }
+
+  :deep(code) {
+    font-size: 13px;
+    padding: 2px 4px;
+    border-radius: 2px;
+    background: $zerone-bg-light;
+  }
+
+  :deep(pre) {
+    margin: 8px 0 0;
+    padding: 10px 12px;
+    border-radius: 2px;
+    background: $zerone-bg-light;
+    overflow-x: auto;
+  }
+
+  :deep(pre code) {
+    padding: 0;
+    background: transparent;
+  }
+
+  :deep(blockquote) {
+    margin: 0 0 8px;
+    padding-left: 10px;
+    border-left: 2px solid $zerone-border;
+    color: $zerone-text-secondary;
+  }
+
+  :deep(a) {
+    color: $zerone-text-primary;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+}
+
+:deep(.hljs) {
+  font-size: 13px;
+  line-height: 1.6;
+  background: transparent;
+  color: $zerone-text-primary;
+}
+
+:deep(.hljs-comment),
+:deep(.hljs-quote) {
+  color: $zerone-text-muted;
+}
+
+:deep(.hljs-keyword),
+:deep(.hljs-selector-tag),
+:deep(.hljs-literal),
+:deep(.hljs-section),
+:deep(.hljs-link) {
+  color: $zerone-bg-dark;
+}
+
+:deep(.hljs-string),
+:deep(.hljs-title),
+:deep(.hljs-name),
+:deep(.hljs-type),
+:deep(.hljs-attribute) {
+  color: $zerone-text-secondary;
 }
 
 .cursor {
