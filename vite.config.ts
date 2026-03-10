@@ -6,6 +6,7 @@ import vue from '@vitejs/plugin-vue'
 // https://vite.dev/config/
 export default defineConfig({
   server: {
+    // port: 2999,
     proxy: {
       '/api': { target: 'http://localhost:3001', changeOrigin: true },
     },
